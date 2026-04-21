@@ -1,22 +1,9 @@
 # OWASP Top 10 Code Fixes
 
-This project walks through the ten vulnerable examples you provided and replaces each one with a secure version. The code samples are stored locally in this workspace.
+In this project I worked on 10 different code sample in Python, Java, and JavaScript to clean the code and fix the errors, this following files contains code that has been updated and cleaned up to match the version that I would have if the code was correct. 
 
-## Deliverables
+My fixes does not just improve security but without these fixes the code is incomplete and if it is incomplete we are unable to continue with the product because we will be receiving errors whenever testing and we want to provent that in the code, the goal is to have the code run smoothly while working as it is supposed to work.
 
-- Code files:
-  - [01_broken_access_control_express.js](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/01_broken_access_control_express.js>)
-  - [02_broken_access_control_flask.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/02_broken_access_control_flask.py>)
-  - [03_cryptographic_failures_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/03_cryptographic_failures_java.java>)
-  - [04_cryptographic_failures_python.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/04_cryptographic_failures_python.py>)
-  - [05_injection_sql_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/05_injection_sql_java.java>)
-  - [06_injection_nosql_javascript.js](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/06_injection_nosql_javascript.js>)
-  - [07_insecure_design_password_reset.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/07_insecure_design_password_reset.py>)
-  - [08_software_data_integrity_failures.html](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/08_software_data_integrity_failures.html>)
-  - [09_ssrf_protection.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/09_ssrf_protection.py>)
-  - [10_authentication_failures_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/10_authentication_failures_java.java>)
-- README: this file
-- Optional screen recording: not created in this environment
 
 ## 1. Broken Access Control
 
@@ -226,9 +213,11 @@ The improved flow requires a reset token, checks expiration, hashes the new pass
 ### Vulnerable sample
 
 ```html
+I tested the Software and Data Integrity Failure using localhost:8000
+http://localhost:8000/08_software_data_integrity_failures.html#integrity-details
 <script src="https://cdn.example.com/lib.js"></script>
 ```
-
+ 
 ### Security flaw
 
 This page loads executable code from a third-party source without verifying integrity. If the CDN or network path is compromised, malicious JavaScript can be delivered and executed in users’ browsers.
@@ -307,8 +296,3 @@ The secure verifier recomputes a PBKDF2 hash from the submitted password using t
 
 - [OWASP Top 10 2021: A07 Identification and Authentication Failures](https://owasp.org/Top10/2021/A07_2021-Identification_and_Authentication_Failures/)
 - [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
-
-## Notes
-
-- A GitHub link could not be created from this environment because this workspace is not currently a Git repository and I do not have a remote GitHub destination configured here.
-- The SRI example uses a placeholder integrity hash. In a real submission, replace `sha384-BASE64_HASH_FROM_TRUSTED_VENDOR` with the exact published hash for the pinned script version you choose.
