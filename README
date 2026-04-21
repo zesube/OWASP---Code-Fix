@@ -1,15 +1,15 @@
 # OWASP Top 10 Code Fixes
 
-In this project I worked on 10 different code sample in Python, Java, and JavaScript to clean the code and fix the errors, this following files contains code that has been updated and cleaned up to match the version that I would have if the code was correct. 
+In this project, I worked on 10 different code samples in Python, Java, and JavaScript to clean the code and fix the errors. The following files contain code that has been updated and cleaned up to match the version that I would have if the code were correct. 
 
-My fixes does not just improve security but without these fixes the code is incomplete and if it is incomplete we are unable to continue with the product because we will be receiving errors whenever testing and we want to provent that in the code, the goal is to have the code run smoothly while working as it is supposed to work.
+My fixes do not just improve security, but without these fixes, the code is incomplete. If it is incomplete, we are unable to continue with the product because we will be receiving errors whenever testing, and we want to prevent that in the code. The goal is to have the code run smoothly while working as it is supposed to work.
 
 
 ## 1. Broken Access Control
 
 ### Vulnerable sample
 
-```javascript
+```JavaScript
 app.get('/profile/:userId', (req, res) => {
     User.findById(req.params.userId, (err, user) => {
         if (err) return res.status(500).send(err);
