@@ -1,0 +1,314 @@
+# OWASP Top 10 Code Fixes
+
+This project walks through the ten vulnerable examples you provided and replaces each one with a secure version. The code samples are stored locally in this workspace.
+
+## Deliverables
+
+- Code files:
+  - [01_broken_access_control_express.js](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/01_broken_access_control_express.js>)
+  - [02_broken_access_control_flask.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/02_broken_access_control_flask.py>)
+  - [03_cryptographic_failures_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/03_cryptographic_failures_java.java>)
+  - [04_cryptographic_failures_python.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/04_cryptographic_failures_python.py>)
+  - [05_injection_sql_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/05_injection_sql_java.java>)
+  - [06_injection_nosql_javascript.js](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/06_injection_nosql_javascript.js>)
+  - [07_insecure_design_password_reset.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/07_insecure_design_password_reset.py>)
+  - [08_software_data_integrity_failures.html](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/08_software_data_integrity_failures.html>)
+  - [09_ssrf_protection.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/09_ssrf_protection.py>)
+  - [10_authentication_failures_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/10_authentication_failures_java.java>)
+- README: this file
+- Optional screen recording: not created in this environment
+
+## 1. Broken Access Control
+
+### Vulnerable sample
+
+```javascript
+app.get('/profile/:userId', (req, res) => {
+    User.findById(req.params.userId, (err, user) => {
+        if (err) return res.status(500).send(err);
+        res.json(user);
+    });
+});
+```
+
+### Security flaw
+
+This endpoint trusts the `userId` in the URL and returns that record without checking whether the requester is authenticated or authorized to view it. That is an insecure direct object reference (IDOR), a common Broken Access Control issue. Any user who can guess another user’s ID can read another profile.
+
+### Secure version
+
+See [01_broken_access_control_express.js](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/01_broken_access_control_express.js>).
+
+### Why the fix improves security
+
+The fix requires authentication, validates the identifier, checks that the requester is either the owner or an admin, and only returns safe fields. That enforces server-side authorization instead of trusting client input.
+
+### Official OWASP references
+
+- [OWASP Top 10 2025: A01 Broken Access Control](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/)
+
+## 2. Broken Access Control
+
+### Vulnerable sample
+
+```python
+@app.route('/account/<user_id>')
+def get_account(user_id):
+    user = db.query(User).filter_by(id=user_id).first()
+    return jsonify(user.to_dict())
+```
+
+### Security flaw
+
+This Flask route has the same core problem: it exposes account data for any supplied `user_id` without confirming the caller’s identity or ownership. An attacker can enumerate user IDs and retrieve other accounts.
+
+### Secure version
+
+See [02_broken_access_control_flask.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/02_broken_access_control_flask.py>).
+
+### Why the fix improves security
+
+The updated route uses `@login_required`, compares the target account to the logged-in user, permits admins explicitly, and returns a safe DTO. This changes access from “whoever asks” to “only authorized users.”
+
+### Official OWASP references
+
+- [OWASP Top 10 2025: A01 Broken Access Control](https://owasp.org/Top10/2025/A01_2025-Broken_Access_Control/)
+
+## 3. Cryptographic Failures
+
+### Vulnerable sample
+
+```java
+public String hashPassword(String password) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance("MD5");
+    md.update(password.getBytes());
+    byte[] digest = md.digest();
+    return DatatypeConverter.printHexBinary(digest);
+}
+```
+
+### Security flaw
+
+MD5 is broken for password storage because it is fast and obsolete. Fast hashes make offline cracking easier, and the sample also omits a unique salt. That means identical passwords produce identical hashes and are vulnerable to rainbow table attacks.
+
+### Secure version
+
+See [03_cryptographic_failures_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/03_cryptographic_failures_java.java>).
+
+### Why the fix improves security
+
+The replacement uses PBKDF2-HMAC-SHA256 with a cryptographically secure random salt and a high work factor. That slows brute-force attacks and ensures the same password does not hash to the same stored value across users.
+
+### Official OWASP references
+
+- [OWASP Top 10 2025: A04 Cryptographic Failures](https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/)
+- [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+## 4. Cryptographic Failures
+
+### Vulnerable sample
+
+```python
+import hashlib
+
+def hash_password(password):
+    return hashlib.sha1(password.encode()).hexdigest()
+```
+
+### Security flaw
+
+SHA-1 is also outdated and too fast for password storage. Like the Java example, it lacks a salt and does not use a password-specific key derivation function.
+
+### Secure version
+
+See [04_cryptographic_failures_python.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/04_cryptographic_failures_python.py>).
+
+### Why the fix improves security
+
+The Python fix uses `hashlib.pbkdf2_hmac()` with a random salt and constant-time verification via `hmac.compare_digest()`. This makes password cracking significantly harder and avoids leaking comparison timing.
+
+### Official OWASP references
+
+- [OWASP Top 10 2025: A04 Cryptographic Failures](https://owasp.org/Top10/2025/A04_2025-Cryptographic_Failures/)
+- [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+## 5. Injection
+
+### Vulnerable sample
+
+```java
+String username = request.getParameter("username");
+String query = "SELECT * FROM users WHERE username = '" + username + "'";
+Statement stmt = connection.createStatement();
+ResultSet rs = stmt.executeQuery(query);
+```
+
+### Security flaw
+
+This is classic SQL injection. User input is concatenated directly into a query string, so an attacker can inject SQL syntax such as `' OR '1'='1` to bypass filters or extract data.
+
+### Secure version
+
+See [05_injection_sql_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/05_injection_sql_java.java>).
+
+### Why the fix improves security
+
+The fix uses a parameterized query through `PreparedStatement`. The database treats the username as data, not executable SQL, so attacker-controlled input cannot change query structure.
+
+### Official OWASP references
+
+- [OWASP Top 10 2021: A03 Injection](https://owasp.org/Top10/2021/A03_2021-Injection/)
+
+## 6. Injection
+
+### Vulnerable sample
+
+```javascript
+app.get('/user', (req, res) => {
+    // Directly trusting query parameters can lead to NoSQL injection
+    db.collection('users').findOne({ username: req.query.username }, (err, user) => {
+        if (err) throw err;
+        res.json(user);
+    });
+});
+```
+
+### Security flaw
+
+This route trusts a query parameter without type or format validation. In a Node/Mongo stack, attacker-controlled input can sometimes be coerced into operators or unexpected objects, leading to NoSQL injection or logic bypass.
+
+### Secure version
+
+See [06_injection_nosql_javascript.js](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/06_injection_nosql_javascript.js>).
+
+### Why the fix improves security
+
+The secure version enforces that `username` is a plain string, validates it against an allowlist pattern, and queries with an explicit equality operator. It also excludes sensitive fields from the response.
+
+### Official OWASP references
+
+- [OWASP Top 10 2021: A03 Injection](https://owasp.org/Top10/2021/A03_2021-Injection/)
+
+## 7. Insecure Design
+
+### Vulnerable sample
+
+```python
+@app.route('/reset-password', methods=['POST'])
+def reset_password():
+    email = request.form['email']
+    new_password = request.form['new_password']
+    user = User.query.filter_by(email=email).first()
+    user.password = new_password
+    db.session.commit()
+    return 'Password reset'
+```
+
+### Security flaw
+
+This is not just a coding mistake; it is a design failure. Anyone who knows an email address can reset that account’s password. The flow has no identity proof, no one-time token, no expiration, no hashing, and no abuse controls.
+
+### Secure version
+
+See [07_insecure_design_password_reset.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/07_insecure_design_password_reset.py>).
+
+### Why the fix improves security
+
+The improved flow requires a reset token, checks expiration, hashes the new password before storage, and invalidates the token after use. That redesign adds proper verification and prevents arbitrary account takeover.
+
+### Official OWASP references
+
+- [OWASP Top 10 2025: A06 Insecure Design](https://owasp.org/Top10/2025/A06_2025-Insecure_Design/)
+- [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+## 8. Software and Data Integrity Failures
+
+### Vulnerable sample
+
+```html
+<script src="https://cdn.example.com/lib.js"></script>
+```
+
+### Security flaw
+
+This page loads executable code from a third-party source without verifying integrity. If the CDN or network path is compromised, malicious JavaScript can be delivered and executed in users’ browsers.
+
+### Secure version
+
+See [08_software_data_integrity_failures.html](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/08_software_data_integrity_failures.html>).
+
+Localhost test link:
+[http://localhost:8000/08_software_data_integrity_failures.html#integrity-details](http://localhost:8000/08_software_data_integrity_failures.html#integrity-details)
+
+Run this from the project folder before opening the localhost link:
+```bash
+python3 -m http.server 8000
+```
+
+### Why the fix improves security
+
+The fix adds Subresource Integrity with the `integrity` attribute and uses `crossorigin="anonymous"`. It also adds a Content Security Policy to narrow allowed script sources. Together, those controls help ensure only expected script content runs.
+
+### Official OWASP references
+
+- [OWASP Top 10 2025: A08 Software or Data Integrity Failures](https://owasp.org/Top10/2025/A08_2025-Software_or_Data_Integrity_Failures/)
+- [OWASP Subresource Integrity](https://owasp.org/www-community/controls/SubresourceIntegrity)
+
+## 9. Server-Side Request Forgery
+
+### Vulnerable sample
+
+```python
+url = input("Enter URL: ")
+response = requests.get(url)
+print(response.text)
+```
+
+### Security flaw
+
+This code fetches any user-supplied URL. An attacker can use it to access internal-only services, metadata endpoints, loopback interfaces, or non-public hosts through the server.
+
+### Secure version
+
+See [09_ssrf_protection.py](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/09_ssrf_protection.py>).
+
+### Why the fix improves security
+
+The secure version only allows HTTPS, enforces an allowlist of hosts, rejects embedded credentials, resolves DNS, blocks private and special-use IPs, disables redirects, and sets a timeout. Those defenses reduce common SSRF abuse paths.
+
+### Official OWASP references
+
+- [OWASP Top 10 2021: A10 Server-Side Request Forgery (SSRF)](https://owasp.org/Top10/2021/A10_2021-Server-Side_Request_Forgery_%28SSRF%29/)
+- [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html)
+
+## 10. Identification and Authentication Failures
+
+### Vulnerable sample
+
+```java
+if (inputPassword.equals(user.getPassword())) { 
+    // Login success
+}
+```
+
+### Security flaw
+
+This compares the supplied password to a stored password directly, which implies plaintext or reversibly stored credentials. It also uses a normal equality check instead of constant-time comparison. If the database is exposed, all passwords are immediately compromised.
+
+### Secure version
+
+See [10_authentication_failures_java.java](</Users/cadeau/SDEV245-Security & Secure Coding/OWASP - Code Fix/10_authentication_failures_java.java>).
+
+### Why the fix improves security
+
+The secure verifier recomputes a PBKDF2 hash from the submitted password using the stored salt and iteration count, then compares the results with `MessageDigest.isEqual()`. That supports safe password verification without storing plaintext credentials.
+
+### Official OWASP references
+
+- [OWASP Top 10 2021: A07 Identification and Authentication Failures](https://owasp.org/Top10/2021/A07_2021-Identification_and_Authentication_Failures/)
+- [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html)
+
+## Notes
+
+- A GitHub link could not be created from this environment because this workspace is not currently a Git repository and I do not have a remote GitHub destination configured here.
+- The SRI example uses a placeholder integrity hash. In a real submission, replace `sha384-BASE64_HASH_FROM_TRUSTED_VENDOR` with the exact published hash for the pinned script version you choose.

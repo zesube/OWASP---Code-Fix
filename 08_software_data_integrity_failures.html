@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Software and Data Integrity Failures Fix</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f7fb;
+        color: #1f2937;
+      }
+
+      main {
+        max-width: 760px;
+        margin: 48px auto;
+        background: #ffffff;
+        padding: 32px;
+        border-radius: 16px;
+        box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+      }
+
+      h1 {
+        margin-top: 0;
+        color: #0f172a;
+      }
+
+      .code-block {
+        background: #0f172a;
+        color: #e2e8f0;
+        padding: 16px;
+        border-radius: 12px;
+        overflow-x: auto;
+      }
+
+      .note {
+        padding: 14px 16px;
+        border-left: 4px solid #2563eb;
+        background: #eff6ff;
+        border-radius: 8px;
+      }
+
+      .link-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin: 24px 0;
+      }
+
+      .link-group a {
+        display: inline-block;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: #dbeafe;
+        color: #1d4ed8;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .link-group a:hover {
+        background: #bfdbfe;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Secure Third-Party Script Loading</h1>
+      <p>
+        This example demonstrates how to reduce software and data integrity risk
+        when loading a third-party JavaScript file.
+      </p>
+
+      <div class="note">
+        The original vulnerable example loaded a remote script with no integrity
+        check. This fixed version keeps the secure script tag as an example and
+        also shows visible content on the page so the file is useful when opened
+        locally.
+      </div>
+
+      <div class="link-group">
+        <a href="#integrity-details">View Security Details</a>
+        <a href="#integrity-details">Open Secure Example</a>
+        <a href="#integrity-details">Read the Explanation</a>
+      </div>
+
+      <h2 id="integrity-details">Protected Script Tag</h2>
+      <pre class="code-block"><code>&lt;script
+  src="./08_local_demo.js"&gt;&lt;/script&gt;</code></pre>
+
+      <p>
+        The script tag above now points to a local file in this same folder, so
+        the example can be opened and tested entirely on your computer.
+      </p>
+
+      <h2>Why This Is More Secure</h2>
+      <p>
+        Subresource Integrity helps the browser verify that the downloaded file
+        matches the expected cryptographic hash. The Content Security Policy in
+        the page also restricts where scripts can load from.
+      </p>
+
+      <h2>Important Note</h2>
+      <p>
+        This local version is for safe testing in your assignment folder. In a
+        real production site, you would use a trusted external source together
+        with a real SRI hash for that exact file version.
+      </p>
+
+      <h2>Local Test Status</h2>
+      <p id="script-status">Waiting for the local script to run...</p>
+      <p>
+        Localhost test link:
+        <a href="http://localhost:8000/08_software_data_integrity_failures.html#integrity-details">
+          http://localhost:8000/08_software_data_integrity_failures.html#integrity-details
+        </a>
+      </p>
+      <p>
+        To test it locally, run
+        <code>python3 -m http.server 8000</code>
+        from this folder, then open the link above.
+      </p>
+
+      <div class="link-group">
+        <a href="#integrity-details">Back to Security Details</a>
+        <a href="#integrity-details">Show the Same Information Again</a>
+      </div>
+    </main>
+    <script src="./08_local_demo.js"></script>
+  </body>
+</html>
